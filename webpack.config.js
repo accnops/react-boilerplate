@@ -1,6 +1,7 @@
 const path = require('path');
 const merge = require('webpack-merge');
 const validate = require('webpack-validator');
+const env = require('node-env-file');
 
 const parts = require('./webpack.parts');
 
@@ -15,6 +16,9 @@ const PATHS = {
   test: path.join(__dirname, 'tests')
 };
 
+// Set environment variables
+env(path.join(__dirname, '.env'));
+
 process.env.BABEL_ENV = TARGET;
 
 const common = merge(
@@ -27,7 +31,8 @@ const common = merge(
     },
     output: {
       path: PATHS.build,
-      filename: '[name].js'
+      filename: '[name].js',
+      publicPath: ''
     },
     resolve: {
       extensions: ['', '.js', '.jsx']
@@ -106,7 +111,11 @@ switch(TARGET) {
         poll: ENABLE_POLLING
       }),
       parts.enableReactPerformanceTools(),
-      parts.npmInstall()
+      parts.npmInstall(),
+      parts.openBrowser({
+        host: process.env.HOST,
+        port: process.env.PORT
+      })
     );
 }
 
